@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 //import 'dart:async';
-import 'package:flutter_reorderable_list/flutter_reorderable_list.dart';
+//import 'package:flutter_reorderable_list/flutter_reorderable_list.dart';
 
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -37,9 +37,9 @@ class _MyAppState extends State<MyApp> {
           },
           child: const Icon(Icons.add),
         ),
-        body: ReorderableListView.builder(
+        body: /*Reorderable*/ ListView.builder(
           itemCount: tasks.length,
-          onReorder: (oldIndex, newIndex) {
+          /*onReorder: (oldIndex, newIndex) {
             setState(() {
               if (newIndex > oldIndex) {
                 newIndex -= 1;
@@ -47,48 +47,48 @@ class _MyAppState extends State<MyApp> {
               final Task task = tasks.removeAt(oldIndex);
               tasks.insert(newIndex, task);
             });
-          },
+          },*/
           itemBuilder: (BuildContext context, int index) {
-            return //Column(
-                //children: [
+            return Column(
+              children: [
                 ListTile(
-              key: Key('$index'),
-              onTap: () {
-                if (tasks[index].isComplete) {
-                  _deleteTask(index);
-                } else {
-                  _editTask(index);
-                }
-              },
-              title: Text(
-                tasks[index].title,
-                style: TextStyle(
-                  decoration: tasks[index].isComplete
-                      ? TextDecoration.lineThrough
-                      : null,
-                  decorationThickness: 3,
-                  color: Colors.white,
+                  //key: Key('$index'),
+                  onTap: () {
+                    if (tasks[index].isComplete) {
+                      _deleteTask(index);
+                    } else {
+                      _editTask(index);
+                    }
+                  },
+                  title: Text(
+                    tasks[index].title,
+                    style: TextStyle(
+                      decoration: tasks[index].isComplete
+                          ? TextDecoration.lineThrough
+                          : null,
+                      decorationThickness: 3,
+                      color: Colors.white,
+                    ),
+                  ),
+                  trailing: Checkbox(
+                    value: tasks[index].isComplete,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        tasks[index].isComplete = value ?? false;
+                      });
+                      /*
+                      if (tasks[index].isComplete) {
+                        tasks.removeAt(index);
+                      }
+                      */
+                    },
+                  ),
                 ),
-              ),
-              trailing: Checkbox(
-                value: tasks[index].isComplete,
-                onChanged: (bool? value) {
-                  setState(() {
-                    tasks[index].isComplete = value ?? false;
-                  });
-                  //if (tasks[index].isComplete) {
-                  //tasks.removeAt(index);
-                  //}
-                },
-              ),
+                const Divider(
+                  color: Color.fromARGB(255, 93, 93, 93),
+                ),
+              ],
             );
-            /*
-            const Divider(
-              color: Color.fromARGB(255, 93, 93, 93),
-            );
-            */
-            //],
-            //);
           },
         ),
       ),
