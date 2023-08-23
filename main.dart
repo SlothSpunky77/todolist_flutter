@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 //import 'dart:async';
 //import 'package:flutter_reorderable_list/flutter_reorderable_list.dart';
 
@@ -19,6 +20,18 @@ class _MyAppState extends State<MyApp> {
 
   }
 */
+
+  late SharedPreferences prefs;
+  @override
+  void initState() {
+    super.initState();
+    init();
+  }
+
+  Future<void> init() async {
+    prefs = await SharedPreferences.getInstance();
+    _loadTasks();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,6 +89,7 @@ class _MyAppState extends State<MyApp> {
                       setState(() {
                         tasks[index].isComplete = value ?? false;
                       });
+                      _saveTasks();
                       /*
                       if (tasks[index].isComplete) {
                         tasks.removeAt(index);
@@ -93,6 +107,26 @@ class _MyAppState extends State<MyApp> {
         ),
       ),
     );
+  }
+
+  Future<void> _loadTasks() {
+    final taskList = prefs.getStringList('tasks') ?? [];
+    setState(() {
+      tasks.clear();
+      tasks.addAll(taskList.map((task) {
+        final taskData = task.split(':');
+        return Task(title: taskData[0], isComplete: taskData[1] == 'true');
+      }).where((task) => !task.isComplete));
+    });
+    return Future.value();
+  }
+
+  Future<void> _saveTasks() {
+    final taskList = tasks.map((task) {
+      return '${task.title}:${task.isComplete}';
+    }).toList();
+    prefs.setStringList('tasks', taskList);
+    return Future.value();
   }
 
   Future<void> _editTask(int index) async {
@@ -123,6 +157,7 @@ class _MyAppState extends State<MyApp> {
                 setState(() {
                   tasks[index].title = editController.text;
                 });
+                _saveTasks();
                 Navigator.of(context).pop();
               },
               child: const Text('Save'),
@@ -159,6 +194,7 @@ class _MyAppState extends State<MyApp> {
                 setState(() {
                   tasks.removeAt(index);
                 });
+                _saveTasks();
                 Navigator.of(context).pop();
               },
               child: const Text("Delete"),
@@ -211,6 +247,7 @@ class _MyAppState extends State<MyApp> {
       setState(() {
         tasks.add(Task(title: task));
       });
+      _saveTasks();
     }
   }
 }
@@ -219,6 +256,20 @@ class Task {
   String title;
   bool isComplete;
   Task({required this.title, this.isComplete = false});
+  //Database
+  Map<String, dynamic> toJson() {
+    return {
+      'title': title,
+      'isComplete': isComplete,
+    };
+  }
+
+  factory Task.fromJson(Map<String, dynamic> json) {
+    return Task(
+      title: json['title'],
+      isComplete: json['isComplete'],
+    );
+  }
 }
 
 void main() {
